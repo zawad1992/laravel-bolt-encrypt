@@ -1,21 +1,34 @@
 {
     "name": "zawaulkawum/laravel-bolt-encrypt",
-    "description": "Laravel package for encrypting PHP files using Bolt encryption",
+    "description": "A Laravel package for encrypting PHP files using Bolt encryption",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "Zawadul Kawum",
-            "email": "zawad1992@gmail.com"
+            "name": "Zawad",
+            "email": "your-email@example.com"
         }
     ],
     "require": {
         "php": "^8.0",
-        "laravel/framework": "^8.0|^9.0|^10.0|^11.0"
+        "illuminate/support": "^9.0|^10.0|^11.0",
+        "illuminate/console": "^9.0|^10.0|^11.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.0|^10.0",
+        "orchestra/testbench": "^7.0|^8.0|^9.0"
     },
     "autoload": {
         "psr-4": {
             "ZawadulKawum\\LaravelBoltEncrypt\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ZawadulKawum\\LaravelBoltEncrypt\\Tests\\": "tests/"
         }
     },
     "extra": {
@@ -25,5 +38,6 @@
             ]
         }
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

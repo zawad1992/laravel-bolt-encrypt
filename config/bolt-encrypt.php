@@ -6,39 +6,69 @@ return [
     | Default Encryption Key
     |--------------------------------------------------------------------------
     |
-    | This is the default encryption key used for bolt encryption.
-    | You can override this with the --key option when running the command.
+    | This key is used to encrypt your PHP files. You should set this to a
+    | secure, random string. Keep this key secret and don't share it.
     |
     */
-    'key' => env('BOLT_ENCRYPT_KEY', 'kyc7fh'),
+    'encryption_key' => env('BOLT_ENCRYPT_KEY', 'kyc7fh'),
 
     /*
     |--------------------------------------------------------------------------
-    | Default Excludes
+    | Default Source Path
     |--------------------------------------------------------------------------
     |
-    | Files and directories to exclude from encryption by default.
-    | Paths are relative to the source directory.
+    | The default source directory to encrypt files from. This can be
+    | overridden when using the encryption service or command.
+    |
+    */
+    'source_path' => env('BOLT_ENCRYPT_SOURCE', 'src/app'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Output Path
+    |--------------------------------------------------------------------------
+    |
+    | The default output directory where encrypted files will be stored.
+    | This can be overridden when using the encryption service or command.
+    |
+    */
+    'output_path' => env('BOLT_ENCRYPT_OUTPUT', 'encrypted'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Excluded Files
+    |--------------------------------------------------------------------------
+    |
+    | Files or directories to exclude from encryption. These files will be
+    | copied to the output directory without encryption.
     |
     */
     'excludes' => [
-        '.git',
-        '.gitignore',
-        'composer.json',
-        'composer.lock',
-        'package.json',
-        'package-lock.json',
-        'node_modules',
-        'vendor',
+        // Add files or directories to exclude
+        // Example: 'config/app.php',
+        // Example: 'database/migrations',
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Default Output Directory
+    | File Extensions to Encrypt
     |--------------------------------------------------------------------------
     |
-    | The default directory where encrypted files will be saved.
+    | Only files with these extensions will be encrypted. Other files will
+    | be copied without encryption.
     |
     */
-    'output' => 'encrypted',
+    'encrypt_extensions' => ['php'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Preserve Directory Structure
+    |--------------------------------------------------------------------------
+    |
+    | Whether to preserve the directory structure when encrypting files.
+    | If set to false, all encrypted files will be placed in the root
+    | of the output directory.
+    |
+    */
+    'preserve_structure' => true,
 ];
