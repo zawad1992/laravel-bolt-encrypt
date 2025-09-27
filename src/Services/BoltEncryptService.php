@@ -98,9 +98,11 @@ class BoltEncryptService
 require_once __DIR__ . \'/bolt_decrypt.php\';
 bolt_decrypt( __FILE__ , "' . $key . '"); 
 return 0;
-##!!!##';
+/* ##!!!## ';
         
-        if (file_put_contents($outputPath, $prepend . $cipher) === false) {
+        $append = ' ##!!!## */';
+        
+        if (file_put_contents($outputPath, $prepend . $cipher . $append) === false) {
             throw new Exception("Could not write file: {$outputPath}");
         }
     }
@@ -138,14 +140,17 @@ if (!function_exists(\'bolt_decrypt\')) {
         }
         
         $content = file_get_contents($file);
-        $delimiter = "##!!!##";
-        $pos = strpos($content, $delimiter);
+        $startDelimiter = "/* ##!!!## ";
+        $endDelimiter = " ##!!!## */";
         
-        if ($pos === false) {
+        $startPos = strpos($content, $startDelimiter);
+        $endPos = strpos($content, $endDelimiter);
+        
+        if ($startPos === false || $endPos === false) {
             throw new Exception("Invalid encrypted file format");
         }
         
-        $encrypted = substr($content, $pos + strlen($delimiter));
+        $encrypted = substr($content, $startPos + strlen($startDelimiter), $endPos - $startPos - strlen($startDelimiter));
         $decrypted = bolt_decrypt_data($encrypted, $key);
         
         $cache[$file] = true;
