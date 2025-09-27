@@ -13,7 +13,10 @@ class BoltEncryptService
      */
     public function encrypt(string $sourcePath, string $outputDir, string $key, array $excludes = []): array
     {
-        $outputPath = base_path($outputDir);
+        // Handle both absolute and relative paths
+        $outputPath = $outputDir[0] === '/' || (strlen($outputDir) > 1 && $outputDir[1] === ':') 
+            ? $outputDir 
+            : getcwd() . DIRECTORY_SEPARATOR . $outputDir;
         
         // Create output directory if it doesn't exist
         if (!is_dir($outputPath)) {
@@ -56,7 +59,7 @@ class BoltEncryptService
 
             // Handle files
             if (pathinfo($filePath, PATHINFO_EXTENSION) === 'php') {
-                $this->encryptPhpFile($filePath, $newFilePath, $key);
+                $this->encryptPhpFile($filePath, $newFilePath, $key, $outputDir);
                 $processed++;
             } else {
                 // Copy non-PHP files as-is
@@ -75,7 +78,7 @@ class BoltEncryptService
     /**
      * Encrypt a single PHP file while preserving namespaces and structure
      */
-    protected function encryptPhpFile(string $sourcePath, string $outputPath, string $key): void
+    protected function encryptPhpFile(string $sourcePath, string $outputPath, string $key, string $outputDir): void
     {
         $contents = file_get_contents($sourcePath);
         if ($contents === false) {
@@ -86,14 +89,16 @@ class BoltEncryptService
         // This maintains namespaces, use statements, and class declarations intact
         $cipher = $this->boltEncrypt("?> " . $contents, $key);
         
+        // Ensure the directory exists and create bolt_decrypt.php in it
+        $this->ensureDirectoryExists(dirname($outputPath));
+        $this->createDecryptFunction(dirname($outputPath), $key);
+        
         // Include the decrypt function and then decrypt this specific file
         $prepend = '<?php 
 require_once __DIR__ . \'/bolt_decrypt.php\';
 bolt_decrypt( __FILE__ , "' . $key . '"); 
 return 0;
 ##!!!##';
-        
-        $this->ensureDirectoryExists(dirname($outputPath));
         
         if (file_put_contents($outputPath, $prepend . $cipher) === false) {
             throw new Exception("Could not write file: {$outputPath}");
