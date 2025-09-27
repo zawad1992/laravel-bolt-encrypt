@@ -6,7 +6,7 @@ A Laravel package for encrypting PHP files using Bolt encryption.
 
 1. Install via Composer:
 ```bash
-composer require yourvendor/laravel-bolt-encrypt
+composer require zawadulkawum/laravel-bolt-encrypt
 ```
 
 2. Publish the configuration file:
