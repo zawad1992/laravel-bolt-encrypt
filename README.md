@@ -26,14 +26,14 @@ The package will automatically register its service provider.
 Publish the configuration file to customize the package settings:
 
 ```bash
-php artisan vendor:publish --tag=bolt-encrypt-config
+php artisan vendor:publish --tag=file-encryptor-config
 ```
 
-This will create a `config/bolt-encrypt.php` file where you can customize the package settings.
+This will create a `config/file-encryptor.php` file where you can customize the package settings.
 
 ## Configuration
 
-After publishing the configuration file, you can customize the following settings in `config/bolt-encrypt.php`:
+After publishing the configuration file, you can customize the following settings in `config/file-encryptor.php`:
 
 ```php
 return [
