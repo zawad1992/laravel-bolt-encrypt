@@ -88,7 +88,6 @@ class BoltEncryptService
         
         // Include the decrypt function and then decrypt this specific file
         $prepend = '<?php 
-require_once __DIR__ . \'/bolt_decrypt.php\';
 bolt_decrypt( __FILE__ , "' . $key . '"); 
 return 0;
 ##!!!##';
