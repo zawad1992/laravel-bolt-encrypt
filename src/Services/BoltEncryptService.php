@@ -13,12 +13,7 @@ class BoltEncryptService
      */
     public function encrypt(string $sourcePath, string $outputDir, string $key, array $excludes = []): array
     {
-        // Handle output path - use base_path if available (Laravel), otherwise use relative path
-        if (function_exists('base_path')) {
-            $outputPath = call_user_func('base_path', $outputDir);
-        } else {
-            $outputPath = $outputDir;
-        }
+        $outputPath = base_path($outputDir);
         
         // Create output directory if it doesn't exist
         if (!is_dir($outputPath)) {
@@ -61,7 +56,7 @@ class BoltEncryptService
 
             // Handle files
             if (pathinfo($filePath, PATHINFO_EXTENSION) === 'php') {
-                $this->encryptPhpFile($filePath, $newFilePath, $key, $sourcePath, $outputPath);
+                $this->encryptPhpFile($filePath, $newFilePath, $key);
                 $processed++;
             } else {
                 // Copy non-PHP files as-is
@@ -80,30 +75,28 @@ class BoltEncryptService
     /**
      * Encrypt a single PHP file while preserving namespaces and structure
      */
-    protected function encryptPhpFile(string $sourceFilePath, string $outputFilePath, string $key, string $sourceRootDir = '', string $outputRootDir = ''): void
+    protected function encryptPhpFile(string $sourcePath, string $outputPath, string $key): void
     {
-        $contents = file_get_contents($sourceFilePath);
+        $contents = file_get_contents($sourcePath);
         if ($contents === false) {
-            throw new Exception("Could not read file: {$sourceFilePath}");
+            throw new Exception("Could not read file: {$sourcePath}");
         }
 
         // Preserve the original file structure by encrypting the entire content
         // This maintains namespaces, use statements, and class declarations intact
-        // Following the original script approach: encrypt with "?> " prefix
         $cipher = $this->boltEncrypt("?> " . $contents, $key);
         
-        // Calculate relative path from current file to the bolt_decrypt.php in output root
-        $currentFileDir = dirname($outputFilePath);
-        $relativePath = $this->calculateRelativePath($currentFileDir, $outputRootDir);
+        // Include the decrypt function and then decrypt this specific file
+        $prepend = '<?php 
+require_once __DIR__ . \'/bolt_decrypt.php\';
+bolt_decrypt( __FILE__ , "' . $key . '"); 
+return 0;
+##!!!##';
         
-        // Include the decrypt function and then decrypt this specific file (matching original script format)  
-        $template = '<?php require_once __DIR__ . "%s/bolt_decrypt.php"; bolt_decrypt( __FILE__ , "%s"); return 0;' . PHP_EOL . '##!!!##';
-        $prepend = sprintf($template, $relativePath, $key);
+        $this->ensureDirectoryExists(dirname($outputPath));
         
-        $this->ensureDirectoryExists(dirname($outputFilePath));
-        
-        if (file_put_contents($outputFilePath, $prepend . $cipher) === false) {
-            throw new Exception("Could not write file: {$outputFilePath}");
+        if (file_put_contents($outputPath, $prepend . $cipher) === false) {
+            throw new Exception("Could not write file: {$outputPath}");
         }
     }
 
@@ -167,63 +160,10 @@ if (!function_exists(\'bolt_decrypt\')) {
         return $result;
     }
 }
-
-// Global bolt_encrypt function to match original script
-if (!function_exists(\'bolt_encrypt\')) {
-    function bolt_encrypt($data, $key) {
-        $result = "";
-        $keyLen = strlen($key);
-        $dataLen = strlen($data);
-        
-        for ($i = 0; $i < $dataLen; $i++) {
-            $result .= chr(ord($data[$i]) ^ ord($key[$i % $keyLen]));
-        }
-        
-        return base64_encode($result);
-    }
-}
 ?>';
         
         $decryptFile = $outputPath . '/bolt_decrypt.php';
         file_put_contents($decryptFile, $decryptFunctionContent);
-    }
-
-    /**
-     * Calculate relative path from one directory to another
-     */
-    protected function calculateRelativePath(string $from, string $to): string
-    {
-        $from = rtrim(str_replace('\\', '/', realpath($from)), '/');
-        $to = rtrim(str_replace('\\', '/', realpath($to)), '/');
-        
-        $fromParts = explode('/', $from);
-        $toParts = explode('/', $to);
-        
-        // Find common path
-        $commonLength = 0;
-        for ($i = 0; $i < min(count($fromParts), count($toParts)); $i++) {
-            if ($fromParts[$i] === $toParts[$i]) {
-                $commonLength++;
-            } else {
-                break;
-            }
-        }
-        
-        // Build relative path
-        $relativePath = '';
-        
-        // Go up from current directory
-        $upSteps = count($fromParts) - $commonLength;
-        if ($upSteps > 0) {
-            $relativePath = str_repeat('../', $upSteps);
-        }
-        
-        // Add path down to target directory
-        if ($commonLength < count($toParts)) {
-            $relativePath .= implode('/', array_slice($toParts, $commonLength));
-        }
-        
-        return $relativePath ? '/' . rtrim($relativePath, '/') : '';
     }
 
     /**
