@@ -1,12 +1,12 @@
 {
-    "name": "yourvendor/laravel-bolt-encrypt",
+    "name": "zawaulkawum/laravel-bolt-encrypt",
     "description": "Laravel package for encrypting PHP files using Bolt encryption",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "Your Name",
-            "email": "your.email@example.com"
+            "name": "Zawadul Kawum",
+            "email": "zawad1992@gmail.com"
         }
     ],
     "require": {
