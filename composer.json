@@ -1,5 +1,5 @@
 {
-    "name": "zawaulkawum/laravel-bolt-encrypt",
+    "name": "zawadulkawum/laravel-bolt-encrypt",
     "description": "A Laravel package for encrypting PHP files using Bolt encryption",
     "type": "library",
     "license": "MIT",
@@ -23,7 +23,7 @@
             "ZawadulKawum\\LaravelBoltEncrypt\\": "src/"
         },
         "files": [
-            "src/helpers.php"
+            "src/bootstrap.php"
         ]
     },
     "autoload-dev": {
